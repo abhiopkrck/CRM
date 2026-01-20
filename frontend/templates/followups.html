@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Follow-Ups & Tasks</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="navbar">
+        <div class="nav-brand">Tantrata CRM</div>
+        <div class="nav-links">
+            <a href="/">Dashboard</a>
+            <a href="/followups">Follow-Ups</a>
+            <a href="#" id="logout-btn">Logout</a>
+        </div>
+        <div class="nav-user">
+            Logged in as: <span id="current-username">{{ current_username }}</span> (<span id="current-role">{{ current_user_role }}</span>)
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>Follow-Ups & Tasks</h1>
+
+        <div class="followup-controls">
+            <button id="add-followup-btn" class="btn btn-primary">Schedule New Follow-Up</button>
+            <div class="filter-group">
+                <label for="status-filter">Status:</label>
+                <select id="status-filter">
+                    <option value="">All</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Missed">Missed</option>
+                    <option value="Rescheduled">Rescheduled</option>
+                </select>
+                <label for="type-filter">Type:</label>
+                <select id="type-filter">
+                    <option value="">All</option>
+                    <option value="Call">Call</option>
+                    <option value="Meeting">Meeting</option>
+                    <option value="Visit">Visit</option>
+                    <option value="Task">Task</option>
+                </select>
+                <label for="priority-filter">Priority:</label>
+                <select id="priority-filter">
+                    <option value="">All</option>
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                </select>
+                <label for="assigned-filter">Assigned To:</label>
+                <select id="assigned-filter">
+                    <option value="">All</option>
+                    <!-- Options populated by JS -->
+                </select>
+            </div>
+            <input type="text" id="search-input" placeholder="Search by Lead/Customer ID or Notes...">
+        </div>
+
+        <div class="table-responsive">
+            <table class="followup-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Lead/Customer ID</th>
+                        <th>Type</th>
+                        <th>Date & Time</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Assigned To</th>
+                        <th>Notes</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="followup-list">
+                    <!-- Follow-ups will be loaded here by JavaScript -->
+                    <tr><td colspan="9">No follow-ups to display.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modals -->
+
+    <!-- Add/Edit Follow-up Modal -->
+    <div id="followup-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2 id="modal-title">Schedule New Follow-Up</h2>
+            <form id="followup-form">
+                <input type="hidden" id="followup-id">
+                <div class="form-group">
+                    <label for="lead-id">Lead ID:</label>
+                    <input type="text" id="lead-id" name="lead_id">
+                </div>
+                <div class="form-group">
+                    <label for="customer-id">Customer ID:</label>
+                    <input type="text" id="customer-id" name="customer_id">
+                </div>
+                <div class="form-group">
+                    <label for="followup-type">Follow-Up Type:</label>
+                    <select id="followup-type" name="followup_type" required>
+                        <option value="">Select Type</option>
+                        <option value="Call">Call</option>
+                        <option value="Meeting">Meeting</option>
+                        <option value="Visit">Visit</option>
+                        <option value="Task">Task</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="followup-datetime">Date & Time:</label>
+                    <input type="datetime-local" id="followup-datetime" name="followup_datetime" required>
+                </div>
+                <div class="form-group">
+                    <label for="priority">Priority:</label>
+                    <select id="priority" name="priority" required>
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="assigned-to">Assigned To:</label>
+                    <select id="assigned-to" name="assigned_to" required>
+                        <!-- Options populated by JS -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="notes">Notes:</label>
+                    <textarea id="notes" name="notes" rows="4"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Save Follow-Up</button>
+                <button type="button" class="btn btn-secondary close-button">Cancel</button>
+                <p id="form-error-message" class="error-message"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- History Modal -->
+    <div id="history-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Follow-Up History for #<span id="history-followup-id"></span></h2>
+            <div id="history-list">
+                <!-- History items will be loaded here -->
+            </div>
+            <button type="button" class="btn btn-secondary close-button">Close</button>
+        </div>
+    </div>
+
+    <!-- Reschedule Modal -->
+    <div id="reschedule-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Reschedule Follow-Up #<span id="reschedule-followup-id"></span></h2>
+            <form id="reschedule-form">
+                <input type="hidden" id="reschedule-id">
+                <div class="form-group">
+                    <label for="new-datetime">New Date & Time:</label>
+                    <input type="datetime-local" id="new-datetime" name="new_datetime" required>
+                </div>
+                <div class="form-group">
+                    <label for="reschedule-remarks">Reason for Reschedule:</label>
+                    <textarea id="reschedule-remarks" name="reschedule_remarks" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Reschedule</button>
+                <button type="button" class="btn btn-secondary close-button">Cancel</button>
+                <p id="reschedule-error-message" class="error-message"></p>
+            </form>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/followups.js') }}"></script>
+</body>
+</html>

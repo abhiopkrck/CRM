@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM Follow-Up Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="manifest" href="/static/manifest.json">
+<meta name="theme-color" content="#0d6efd">
+
+</head>
+<body>
+    <div class="navbar">
+        <div class="nav-brand">Tantrata CRM</div>
+        <div class="nav-links">
+            <a href="/">Dashboard</a>
+            <a href="/followups">Follow-Ups</a>
+            <a href="#" id="logout-btn">Logout</a>
+        </div>
+        <div class="nav-user">
+            Logged in as: <span id="current-username">{{ current_username }}</span> (<span id="current-role">{{ current_user_role }}</span>)
+        </div>
+    </div>
+
+    <div class="container dashboard">
+        <h1>Dashboard</h1>
+
+        <section class="dashboard-summary">
+            <div class="card bg-blue">
+                <h3>Total Pending Follow-Ups</h3>
+                <p id="pending-count">0</p>
+            </div>
+            <div class="card bg-red">
+                <h3>Total Missed Follow-Ups</h3>
+                <p id="missed-count">0</p>
+            </div>
+            <!-- Additional cards could be added here, e.g., Completed, Upcoming Today -->
+        </section>
+
+        <section class="dashboard-alerts">
+            <h2>Reminders & Alerts</h2>
+            <div class="alert-section upcoming">
+                <h3>Upcoming Follow-Ups (Next 24h)</h3>
+                <div id="upcoming-list" class="alert-list">
+                    <!-- Upcoming follow-ups will be loaded here -->
+                    <p class="no-data">No upcoming follow-ups.</p>
+                </div>
+            </div>
+            <div class="alert-section overdue">
+                <h3>Overdue / Missed Follow-Ups</h3>
+                <div id="missed-list" class="alert-list">
+                    <!-- Missed follow-ups will be loaded here -->
+                    <p class="no-data">No missed follow-ups.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="dashboard-actions">
+            <h2>Quick Actions</h2>
+            <button class="btn btn-primary" onclick="location.href='/followups?action=add'">Schedule New Follow-Up</button>
+            <button class="btn btn-secondary" onclick="location.href='/followups'">View All Follow-Ups</button>
+        </section>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
