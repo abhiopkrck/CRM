@@ -1,5 +1,2 @@
-eel
-google-genai
-python-dotenv
-pyinstaller
-pywebview
+
+flask 
